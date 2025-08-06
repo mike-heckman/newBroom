@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>newBroom</title>
+</head>
+<body class="bg-gray-50 text-gray-800 p-4" style="width: 280px;">
+    <div class="text-center">
+        <h1 class="text-lg font-bold text-gray-900 mb-3">newBroom</h1>
+        <p class="text-sm text-gray-600 mb-4">
+            Currently on: <strong id="currentDomain" class="text-blue-600">Loading...</strong>
+        </p>
+        <div class="space-y-2">
+            <button id="cleanNow" class="w-full px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition disabled:bg-gray-400 disabled:cursor-not-allowed">
+                Clean Now
+            </button>
+            <button id="whitelistSite" class="w-full px-4 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition disabled:bg-gray-400 disabled:cursor-not-allowed">
+                Whitelist this Site
+            </button>
+            <button id="blacklistSite" class="w-full px-4 py-2 bg-red-600 text-white font-semibold rounded-lg shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition disabled:bg-gray-400 disabled:cursor-not-allowed">
+                Blacklist this Site
+            </button>
+            <button id="manageSettings" class="w-full px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition">
+                Manage All Settings
+            </button>
+        </div>
+        <p id="status" class="text-sm font-medium mt-3 h-4"></p>
+    </div>
+    <script src="popup.js" type="module"></script>
+</body>
+</html>

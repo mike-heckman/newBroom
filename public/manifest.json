@@ -1,0 +1,33 @@
+{
+  "name": "newBroom",
+  "version": "0.71.6",
+  "manifest_version": 3,
+  "description": "newBroom: Automatically removes site data when the browser closes, with a configurable whitelist.",
+  "permissions": [
+    "browsingData",
+    "storage",
+    "tabs",
+    "cookies"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "incognito": "spanning",
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/icon16.png",
+      "48": "images/icon48.png",
+      "128": "images/icon128.png"
+    }
+  },
+  "options_page": "options.html",
+  "icons": {
+    "16": "images/icon16.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
+  }
+}

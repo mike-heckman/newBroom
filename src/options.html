@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>newBroom Options</title>
+</head>
+<body class="bg-gray-50 text-gray-800 p-4 sm:p-6 md:p-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white p-6 rounded-xl shadow-md">
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">newBroom Settings</h1>
+            <p class="text-gray-600 mb-6">Configure which data to clear and which websites to protect or target.</p>
+
+            <!-- Whitelist Section -->
+            <div class="mb-8">
+                <h2 class="text-lg font-semibold text-gray-800 mb-2">Whitelisted Domains</h2>
+                <p class="text-sm text-gray-500 mb-3">Data from these domains will <span class="font-bold">NOT</span> be cleared. Use <code class="bg-gray-200 p-1 rounded">*.example.com</code> for wildcards.</p>
+                <textarea id="whitelist" class="w-full h-48 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="*.google.com&#10;github.com"></textarea>
+            </div>
+
+            <!-- Blacklist Section -->
+            <div class="mb-8">
+                <h2 class="text-lg font-semibold text-gray-800 mb-2">Blacklisted Domains</h2>
+                <p class="text-sm text-gray-500 mb-3">Data from these domains will <span class="font-bold">ALWAYS</span> be cleared. The blacklist overrides the whitelist. Use wildcards similarly.</p>
+                <textarea id="blacklist" class="w-full h-48 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition" placeholder="facebook.com&#10;*.doubleclick.net"></textarea>
+            </div>
+
+            <!-- Data Types Section -->
+            <div class="mb-8">
+                <h2 class="text-lg font-semibold text-gray-800 mb-2">Data to Clear on Close</h2>
+                <p class="text-sm text-gray-500 mb-4">Check all types of data to remove. <span class="font-bold">Note:</span> Wildcard rules only fully apply to cookies due to Chrome API limitations.</p>
+                <div id="dataTypes" class="grid grid-cols-1 gap-4">
+                    <!-- Checkboxes will be inserted here by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-end space-x-4">
+                 <span id="status" class="text-green-600 font-medium opacity-0 transition-opacity">Settings saved!</span>
+                 <button id="save" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">Save Settings</button>
+            </div>
+        </div>
+    </div>
+    <script src="options.js" type="module"></script>
+</body>
+</html>
