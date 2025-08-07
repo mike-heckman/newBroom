@@ -13,6 +13,29 @@ function domainMatches(domain, pattern) {
 }
 
 /**
+ * Converts a list of whitelisted hostnames to a list of origins for the browsingData API.
+ * @param {string[]} whitelist - An array of domains to protect.
+ * @returns {string[]} An array of origins (e.g., "https://example.com").
+ */
+function getExcludedOrigins(whitelist) {
+    return whitelist.reduce((acc, domain) => {
+        let hostname = domain;
+        if (hostname.startsWith('*.')) {
+            hostname = hostname.substring(2);
+        }
+        // The API does not support wildcards in origins, so we only process valid hostnames.
+        if (!hostname.includes('*')) {
+            acc.push(`http://${hostname}`);
+            acc.push(`https://${hostname}`);
+        } else {
+            // Log the rejected domain because it's not a valid hostname for this API.
+            console.log(`Rejected invalid whitelist entry for browsingData API (contains '*'): "${domain}"`);
+        }
+        return acc;
+    }, []);
+}
+
+/**
  * Clears cookies based on complex whitelist/blacklist rules with wildcard support.
  * @param {string[]} whitelist - An array of domains to protect.
  * @param {string[]} blacklist - An array of domains to force-delete.
@@ -24,78 +47,59 @@ async function clearCookiesWithRules(whitelist, blacklist, clearStandard, clearP
     const cookieStores = await chrome.cookies.getAllCookieStores();
     
     // Create a promise for each store's cookies and fetch them in parallel.
-    const allCookiesPromises = cookieStores.map(store => chrome.cookies.getAll({ storeId: store.id }));
+    const allCookiesPromises = cookieStores.map(store => chrome.cookies.getAll({ storeId: store.id, partitionKey: {} }));
     const cookies = (await Promise.all(allCookiesPromises)).flat();
 
-    console.log(`Total cookies found across all stores: ${cookies.length}`);
-
-    // --- FINAL DIAGNOSTIC LOG ---
-    // This will check each cookie store individually to see if the API can find the cookies there.
-    for (const store of cookieStores) {
-        const diagnosticCookies = await chrome.cookies.getAll({ domain: "youtube.com", storeId: store.id });
-        console.log(`[DIAGNOSTIC for store ${store.id}] Found ${diagnosticCookies.length} cookies for "youtube.com":`, diagnosticCookies);
-    }
+    console.log(`Total cookies found by cookies API: ${cookies.length}`);
 
     if (!cookies || cookies.length === 0) {
         console.log("No cookies to process.");
-        return;
-    }
+    } else {
+        const removalPromises = [];
+        for (const cookie of cookies) {
+            const isPartitioned = !!cookie.partitionKey;
 
-    const removalPromises = [];
-    for (const cookie of cookies) {
-        const isPartitioned = !!cookie.partitionKey;
-
-        const cookieDomain = cookie.domain.startsWith('.') ? cookie.domain.substring(1) : cookie.domain;
-        let isWhitelisted = false;
-        let isBlacklisted = false;
-
-        // Always log the cookie when it's found for better debugging visibility.
-        const topLevelSite = isPartitioned && cookie.partitionKey.topLevelSite ? `on ${cookie.partitionKey.topLevelSite}` : '';
-        // More detailed log to inspect the raw cookie object
-        console.log(`Found cookie: ${cookie.name} from ${cookieDomain} ${topLevelSite}`, {
-            isPartitioned: isPartitioned,
-            rawCookie: cookie
-        });
-        
-        // Now, check if we should skip processing based on user settings.
-        if ((isPartitioned && !clearPartitioned) || (!isPartitioned && !clearStandard)) {
-            console.log(` -> Skipping: Clearing for this cookie type is disabled in settings.`);
-            continue;
-        }
-
-        if (isPartitioned && cookie.partitionKey.topLevelSite) {
-            const topLevelSite = cookie.partitionKey.topLevelSite;
-            // Stricter logic for partitioned cookies:
-            // Whitelisted only if BOTH the cookie's domain AND the top-level site are whitelisted.
-            isWhitelisted = whitelist.some(p => domainMatches(cookieDomain, p)) &&
-                            whitelist.some(p => domainMatches(topLevelSite, p));
-            // Blacklisted if EITHER the cookie's domain OR the top-level site is blacklisted.
-            isBlacklisted = blacklist.some(p => domainMatches(cookieDomain, p)) ||
-                            blacklist.some(p => domainMatches(topLevelSite, p));
-        } else {
-            // Standard logic for non-partitioned cookies.
-            isWhitelisted = whitelist.some(p => domainMatches(cookieDomain, p));
-            isBlacklisted = blacklist.some(p => domainMatches(cookieDomain, p));
-        }
-
-        // A cookie is deleted if it's on the blacklist OR if it's not on the whitelist.
-        const shouldDelete = isBlacklisted || !isWhitelisted;
-
-        if (shouldDelete) {
-            const url = "http" + (cookie.secure ? "s" : "") + "://" + cookie.domain + cookie.path;
-            const removalOptions = { url: url, name: cookie.name };
-            if (isPartitioned) {
-                removalOptions.partitionKey = cookie.partitionKey;
+            // Skip this cookie if its type is not selected for clearing.
+            if ((isPartitioned && !clearPartitioned) || (!isPartitioned && !clearStandard)) {
+                continue;
             }
-            removalPromises.push(chrome.cookies.remove(removalOptions));
-            console.log(` -> Action: Deleting. (Whitelisted: ${isWhitelisted}, Blacklisted: ${isBlacklisted})`);
-        } else {
-            console.log(` -> Action: Keeping. (Whitelisted: ${isWhitelisted}, Blacklisted: ${isBlacklisted})`);
+
+            const cookieDomain = cookie.domain.startsWith('.') ? cookie.domain.substring(1) : cookie.domain;
+            let isWhitelisted = false;
+            let isBlacklisted = false;
+
+            if (isPartitioned && cookie.partitionKey.topLevelSite) {
+                const topLevelSite = cookie.partitionKey.topLevelSite;
+                // Stricter logic for partitioned cookies:
+                // Whitelisted only if BOTH the cookie's domain AND the top-level site are whitelisted.
+                isWhitelisted = whitelist.some(p => domainMatches(cookieDomain, p)) &&
+                                whitelist.some(p => domainMatches(topLevelSite, p));
+                // Blacklisted if EITHER the cookie's domain OR the top-level site is blacklisted.
+                isBlacklisted = blacklist.some(p => domainMatches(cookieDomain, p)) ||
+                                blacklist.some(p => domainMatches(topLevelSite, p));
+            } else {
+                // Standard logic for non-partitioned cookies.
+                isWhitelisted = whitelist.some(p => domainMatches(cookieDomain, p));
+                isBlacklisted = blacklist.some(p => domainMatches(cookieDomain, p));
+            }
+
+            // A cookie is deleted if it's on the blacklist OR if it's not on the whitelist.
+            const shouldDelete = isBlacklisted || !isWhitelisted;
+
+            if (shouldDelete) {
+                const url = "http" + (cookie.secure ? "s" : "") + "://" + cookie.domain + cookie.path;
+                const removalOptions = { url: url, name: cookie.name };
+                if (isPartitioned) {
+                    removalOptions.partitionKey = cookie.partitionKey;
+                }
+                removalPromises.push(chrome.cookies.remove(removalOptions));
+            }
         }
+
+        await Promise.all(removalPromises);
+        console.log("Precise cookie clearing process completed.");
     }
 
-    await Promise.all(removalPromises);
-    console.log("Cookie clearing process completed based on wildcard rules.");
 }
 
 /**
@@ -104,27 +108,7 @@ async function clearCookiesWithRules(whitelist, blacklist, clearStandard, clearP
  * @param {string[]} whitelist - The original whitelist with potential wildcards.
  */
 async function clearOtherData(dataTypes, whitelist) {
-    // The browsingData API requires origins (e.g., "https://example.com"), not just hostnames.
-    // We'll convert each valid hostname from the whitelist into http and https origins.
-    const excludedOrigins = whitelist.reduce((acc, domain) => {
-        let hostname = domain;
-        // If it starts with '*.', remove it for the API call.
-        if (hostname.startsWith('*.')) {
-            hostname = hostname.substring(2);
-        }
-
-        // The API does not support wildcards in origins, so we only process valid hostnames.
-        if (!hostname.includes('*')) {
-            acc.push(`http://${hostname}`);
-            acc.push(`https://${hostname}`);
-        } else {
-            // Log the rejected domain because it's not a valid hostname for this API.
-            console.log(`Rejected invalid whitelist entry for non-cookie data (contains '*'): "${domain}"`);
-        }
-        return acc;
-    }, []);
-
-    // The correct property is `excludeOrigins`. The API does not support `excludeHostnames`.
+    const excludedOrigins = getExcludedOrigins(whitelist);
     const options = { "excludeOrigins": excludedOrigins };
 
     console.log("Clearing other site data, excluding origins:", excludedOrigins);

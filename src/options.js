@@ -81,7 +81,7 @@ function buildUI() {
         if (type.id === 'partitionedCookies') {
             const note = document.createElement('p');
             note.className = 'text-xs text-gray-500 ml-4 mt-1 px-2';
-            note.innerHTML = 'Note: Whitelist/blacklist rules apply to the top-level site that created the partitioned cookie. <a href="https://privacysandbox.google.com/cookies/chips" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Learn more about CHIPS</a>.';
+            note.innerHTML = 'Note: Due to Chrome API limitations, whitelisting a site protects its partitioned cookies, but complex cross-site rules do not apply. <a href="https://privacysandbox.google.com/cookies/chips" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Learn more about CHIPS</a>.';
             itemContainer.appendChild(note);
         }
 
