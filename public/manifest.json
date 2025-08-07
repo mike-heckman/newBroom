@@ -1,6 +1,6 @@
 {
   "name": "newBroom",
-  "version": "0.80.0",
+  "version": "0.80.1",
   "manifest_version": 3,
   "description": "newBroom: Automatically removes site data when the browser closes, with a configurable whitelist.",
   "permissions": [

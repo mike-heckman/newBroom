@@ -29,6 +29,7 @@ function saveOptions() {
     // Get domains from textareas, split by new lines, trim whitespace, and filter out empty lines.
     const whitelist = document.getElementById('whitelist').value.split('\n').map(s => s.trim()).filter(Boolean);
     const blacklist = document.getElementById('blacklist').value.split('\n').map(s => s.trim()).filter(Boolean);
+    const extensionEnabled = document.getElementById('extensionEnabled').checked;
 
     // Get the selected data types from the checkboxes.
     const dataTypes = {};
@@ -40,7 +41,7 @@ function saveOptions() {
     });
 
     // Save to synchronized storage.
-    chrome.storage.sync.set({ whitelist, blacklist, dataTypes }, () => {
+    chrome.storage.sync.set({ whitelist, blacklist, dataTypes, extensionEnabled }, () => {
         // Update status to let user know options were saved.
         const status = document.getElementById('status');
         status.textContent = 'Settings saved!';
@@ -97,11 +98,13 @@ function restoreOptions() {
     chrome.storage.sync.get({
         whitelist: [],
         blacklist: [],
-        dataTypes: DEFAULT_DATA_TYPES
+        dataTypes: DEFAULT_DATA_TYPES,
+        extensionEnabled: false
     }, (items) => {
         // Populate the textareas.
         document.getElementById('whitelist').value = items.whitelist.join('\n');
         document.getElementById('blacklist').value = items.blacklist.join('\n');
+        document.getElementById('extensionEnabled').checked = items.extensionEnabled;
         
         // Check the boxes for the saved data types.
         for (const typeId in items.dataTypes) {
@@ -114,6 +117,7 @@ function restoreOptions() {
 }
 
 function setupAutoSave() {
+    document.getElementById('extensionEnabled').addEventListener('change', saveOptions);
     document.getElementById('whitelist').addEventListener('input', saveOptions);
     document.getElementById('blacklist').addEventListener('input', saveOptions);
 

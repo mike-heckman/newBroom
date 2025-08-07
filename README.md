@@ -69,11 +69,29 @@ Find the repo here: https://github.com/mike-heckman/newBroom
 
 After installing, you can configure the extension by right-clicking the newBroom icon in your Chrome toolbar and selecting "Options".
 
+**Important:** By default, newBroom is disabled to prevent accidental data loss. You must first enable it from the options page using the "Enable newBroom" toggle.
+
 On the options page, you can:
 -   **Manage Whitelisted/Blacklisted Domains**: Add or remove domains, one per line.
 -   **Select Data to Clear**: Check the boxes for each type of data you want to be removed during cleanup.
 
-Click "Save Settings" to apply your changes.
+All settings are saved automatically as you make changes.
+
+## Data Types Explained
+
+You can choose to clear the following types of data:
+
+*   **Cookies**: Small files websites use to remember your login status, preferences, and tracking information.
+*   **Partitioned Cookies**: A special type of cookie (CHIPS) used by embedded services that is isolated to each top-level site to enhance privacy.
+*   **Local Storage**: A storage space websites use to save application state and user data without an expiration date.
+*   **Cache**: Temporary storage for images, scripts, and other parts of websites to make them load faster on your next visit.
+*   **IndexedDB**: A modern database within your browser for storing large amounts of structured data for web applications.
+*   **File Systems**: Allows web apps to manage files in a sandboxed part of your computer's file system.
+*   **WebSQL**: A deprecated database technology that might still be used by some older websites.
+*   **Browsing History**: The list of web pages you have visited.
+*   **Download History**: The list of files you have downloaded.
+*   **Form Data**: Information you've typed into forms, which is often used for autofill.
+*   **Passwords**: Your saved usernames and passwords for various websites.
 
 ## Permissions Explained
 

@@ -129,15 +129,14 @@ async function clearOtherData(dataTypes, whitelist) {
     console.log("Non-cookie data clearing process completed.");
 }
 
-
 /**
- * Main function to orchestrate the clearing process.
+ * The core cleaning logic. Fetches settings and clears data.
  */
-async function clearAllData() {
+async function performCleaning() {
     const items = await chrome.storage.sync.get({
         whitelist: [],
         blacklist: [],
-        dataTypes: { "cookies": true, "partitionedCookies": false }
+        dataTypes: { "cookies": true, "partitionedCookies": false },
     });
 
     const { whitelist, blacklist, dataTypes } = items;
@@ -158,17 +157,31 @@ async function clearAllData() {
     console.log("All clearing tasks have been completed.");
 }
 
+/**
+ * Gatekeeper function for automatic clearing. Checks if the extension is enabled.
+ */
+async function clearAllDataIfEnabled() {
+    const { extensionEnabled } = await chrome.storage.sync.get({
+        extensionEnabled: false
+    });
+
+    // If the extension is disabled, do nothing.
+    if (!extensionEnabled) {
+        console.log("newBroom automatic cleaning is disabled. No data will be cleared.");
+        return;
+    }
+    
+    console.log("Last browser window closed. Clearing site data with newBroom...");
+    await performCleaning();
+}
 
 /**
  * Listens for a window to be closed. If it's the last window,
  * it triggers the data clearing process.
  */
 chrome.windows.onRemoved.addListener(async () => {
-    const windows = await chrome.windows.getAll({});
-    if (windows.length === 0) {
-        console.log("Last browser window closed. Clearing site data with newBroom...");
-        await clearAllData();
-    }
+    const allWindows = await chrome.windows.getAll({});
+    if (allWindows.length === 0) await clearAllDataIfEnabled();
 });
 
 /**
@@ -178,8 +191,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "cleanNow") {
         console.log("'Clean Now' requested from popup.");
         // Trigger the cleaning process but don't wait for it to finish to send a response.
-        // This gives the user immediate feedback.
-        clearAllData(); 
+        performCleaning(); 
         sendResponse({ message: "Cleaning initiated!" });
     }
     return false; // We are not sending a response asynchronously.

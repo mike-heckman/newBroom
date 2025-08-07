@@ -11,6 +11,18 @@
             <h1 class="text-2xl font-bold text-gray-900 mb-2">newBroom Settings</h1>
             <p class="text-gray-600 mb-6">Configure which data to clear and which websites to protect or target.</p>
 
+            <!-- Enable/Disable Section -->
+            <div class="mb-8 p-4 border-l-4 border-blue-500 bg-blue-50 rounded-lg">
+                <h2 class="text-lg font-semibold text-gray-800 mb-2">Master Control</h2>
+                <label for="extensionEnabled" class="flex items-center space-x-3 cursor-pointer">
+                    <input type="checkbox" id="extensionEnabled" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                    <span class="text-gray-700 font-medium">Enable newBroom automatic cleaning</span>
+                </label>
+                <p class="text-sm text-gray-600 mt-2 ml-8">
+                    When enabled, newBroom will clear data based on your rules when the last browser window is closed. All changes are saved automatically.
+                </p>
+            </div>
+
             <!-- Whitelist Section -->
             <div class="mb-8">
                 <h2 class="text-lg font-semibold text-gray-800 mb-2">Whitelisted Domains</h2>
@@ -35,9 +47,8 @@
             </div>
 
             <!-- Action Buttons -->
-            <div class="flex items-center justify-end space-x-4">
+            <div class="flex items-center justify-end space-x-4 h-10">
                  <span id="status" class="text-green-600 font-medium opacity-0 transition-opacity">Settings saved!</span>
-                 <button id="save" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">Save Settings</button>
             </div>
         </div>
     </div>
