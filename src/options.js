@@ -113,9 +113,21 @@ function restoreOptions() {
     });
 }
 
+function setupAutoSave() {
+    document.getElementById('whitelist').addEventListener('input', saveOptions);
+    document.getElementById('blacklist').addEventListener('input', saveOptions);
+
+    ALL_DATA_TYPES.forEach(type => {
+        const checkbox = document.getElementById(type.id);
+        if (checkbox) {
+            checkbox.addEventListener('change', saveOptions);
+        }
+    });
+}
+
 // Add event listeners once the DOM is loaded.
 document.addEventListener('DOMContentLoaded', () => {
     buildUI();
     restoreOptions();
+    setupAutoSave();
 });
-document.getElementById('save').addEventListener('click', saveOptions);

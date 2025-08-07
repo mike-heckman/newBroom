@@ -1,7 +1,7 @@
 {
   "name": "newbroom",
   "private": true,
-  "version": "0.60.0",
+  "version": "0.80.0",
   "type": "module",
   "description": "",
   "main": "index.js",
@@ -11,7 +11,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "GPL-3.0-or-later",
   "devDependencies": {
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.6",

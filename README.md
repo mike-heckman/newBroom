@@ -75,6 +75,22 @@ On the options page, you can:
 
 Click "Save Settings" to apply your changes.
 
+## Permissions Explained
+
+This extension requests the following permissions to function correctly:
+
+*   **`browsingData`**: The core permission required to clear browsing data like cache, local storage, and history using Chrome's `browsingData` API.
+*   **`storage`**: Used to save your whitelist, blacklist, and data type preferences using `chrome.storage.sync`, so your settings are saved across your devices.
+*   **`tabs`**: Allows the popup to identify the domain of the currently active tab, so you can easily add it to your whitelist or blacklist.
+*   **`cookies`**: Provides access to the `chrome.cookies` API, which is essential for the advanced, rule-based cookie cleaning. This allows the extension to inspect individual cookies and apply your wildcard and blacklist/whitelist rules with precision.
+*   **`<all_urls>` (Access to data on all websites)**: This is required for the `chrome.cookies` API to read and remove cookies from any website, as dictated by your settings. The extension needs to be able to scan all cookies to determine which ones to keep or delete based on your rules.
+
+## Privacy Guarantee
+
+newBroom is designed with your privacy as the top priority. **This extension does not collect, store, or transmit any of your personal data or browsing activity to any external servers.**
+
+All data processing happens locally within your browser. Your settings (whitelist, blacklist, and preferences) are saved using `chrome.storage.sync`, which only synchronizes them across your own devices where you are logged into your browser's account. Your information never leaves your control.
+
 ## License
 
-This project is licensed under the GNU 3 License (See the LICENSE file for the full license details).
+This project is licensed under the GNU General Public License v3.0. See the `LICENSE.md` file for full details.
