@@ -4,11 +4,11 @@ import './style.css';
 const ALL_DATA_TYPES = [
     { id: 'cookies', name: 'Cookies' },
     { id: 'partitionedCookies', name: 'Partitioned Cookies' },
-    { id: 'localStorage', name: 'Local Storage' },
-    { id: 'cache', name: 'Cache' },
-    { id: 'indexedDB', name: 'IndexedDB' },
-    { id: 'fileSystems', name: 'File Systems' },
-    { id: 'webSQL', name: 'WebSQL' },
+    { id: 'localStorage', name: 'Local Storage', supportsOverride: true },
+    { id: 'cache', name: 'Cache', supportsOverride: true },
+    { id: 'indexedDB', name: 'IndexedDB', supportsOverride: true },
+    { id: 'fileSystems', name: 'File Systems', supportsOverride: true },
+    { id: 'webSQL', name: 'WebSQL', supportsOverride: true },
     { id: 'history', name: 'Browsing History' },
     { id: 'downloads', name: 'Download History' },
     { id: 'formData', name: 'Form Data' },
@@ -33,15 +33,24 @@ function saveOptions() {
 
     // Get the selected data types from the checkboxes.
     const dataTypes = {};
+    const dataTypeOverrides = {};
     ALL_DATA_TYPES.forEach(type => {
         const checkbox = document.getElementById(type.id);
         if (checkbox) {
             dataTypes[type.id] = checkbox.checked;
         }
+        if (type.supportsOverride) {
+            const overrideCheckbox = document.getElementById(`${type.id}_override`);
+            if (overrideCheckbox) {
+                dataTypeOverrides[type.id] = overrideCheckbox.checked;
+            }
+        }
     });
 
     // Save to synchronized storage.
-    chrome.storage.sync.set({ whitelist, blacklist, dataTypes, extensionEnabled }, () => {
+    chrome.storage.sync.set(
+        { whitelist, blacklist, dataTypes, extensionEnabled, dataTypeOverrides }, 
+        () => {
         // Update status to let user know options were saved.
         const status = document.getElementById('status');
         status.textContent = 'Settings saved!';
@@ -61,9 +70,10 @@ function buildUI() {
     // Dynamically create checkboxes for each data type.
     ALL_DATA_TYPES.forEach(type => {
         const itemContainer = document.createElement('div');
+        itemContainer.className = 'bg-gray-100 rounded-lg p-3';
 
         const label = document.createElement('label');
-        label.className = 'flex items-center space-x-3 p-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition cursor-pointer';
+        label.className = 'flex items-center space-x-3 cursor-pointer';
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
@@ -78,10 +88,33 @@ function buildUI() {
         label.appendChild(span);
         itemContainer.appendChild(label);
 
+        // Add the override checkbox if this data type supports it.
+        if (type.supportsOverride) {
+            const overrideContainer = document.createElement('div');
+            overrideContainer.className = 'ml-8 mt-2';
+
+            const overrideLabel = document.createElement('label');
+            overrideLabel.className = 'flex items-center space-x-2 cursor-pointer';
+
+            const overrideCheckbox = document.createElement('input');
+            overrideCheckbox.type = 'checkbox';
+            overrideCheckbox.id = `${type.id}_override`;
+            overrideCheckbox.className = 'h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500';
+
+            const overrideSpan = document.createElement('span');
+            overrideSpan.className = 'text-xs text-gray-600';
+            overrideSpan.textContent = 'Ignore whitelist and clear all';
+
+            overrideLabel.appendChild(overrideCheckbox);
+            overrideLabel.appendChild(overrideSpan);
+            overrideContainer.appendChild(overrideLabel);
+            itemContainer.appendChild(overrideContainer);
+        }
+
         // Add a special note for partitioned cookies as requested.
         if (type.id === 'partitionedCookies') {
             const note = document.createElement('p');
-            note.className = 'text-xs text-gray-500 ml-4 mt-1 px-2';
+            note.className = 'text-xs text-gray-500 ml-8 mt-2';
             note.innerHTML = 'Note: Due to Chrome API limitations, whitelisting a site protects its partitioned cookies, but complex cross-site rules do not apply. <a href="https://privacysandbox.google.com/cookies/chips" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Learn more about CHIPS</a>.';
             itemContainer.appendChild(note);
         }
@@ -99,7 +132,8 @@ function restoreOptions() {
         whitelist: [],
         blacklist: [],
         dataTypes: DEFAULT_DATA_TYPES,
-        extensionEnabled: false
+        extensionEnabled: false,
+        dataTypeOverrides: {}
     }, (items) => {
         // Populate the textareas.
         document.getElementById('whitelist').value = items.whitelist.join('\n');
@@ -111,6 +145,14 @@ function restoreOptions() {
             const checkbox = document.getElementById(typeId);
             if (checkbox) {
                 checkbox.checked = items.dataTypes[typeId];
+            }
+        }
+
+        // Check the boxes for the saved override settings.
+        for (const typeId in items.dataTypeOverrides) {
+            const overrideCheckbox = document.getElementById(`${typeId}_override`);
+            if (overrideCheckbox) {
+                overrideCheckbox.checked = items.dataTypeOverrides[typeId];
             }
         }
     });
@@ -125,6 +167,12 @@ function setupAutoSave() {
         const checkbox = document.getElementById(type.id);
         if (checkbox) {
             checkbox.addEventListener('change', saveOptions);
+        }
+        if (type.supportsOverride) {
+            const overrideCheckbox = document.getElementById(`${type.id}_override`);
+            if (overrideCheckbox) {
+                overrideCheckbox.addEventListener('change', saveOptions);
+            }
         }
     });
 }

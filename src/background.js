@@ -105,25 +105,34 @@ async function clearCookiesWithRules(whitelist, blacklist, clearStandard, clearP
 /**
  * Clears other browsing data (non-cookie) by calling individual removal functions.
  * @param {Object} dataTypes - An object of data types to clear.
+ * @param {Object} dataTypeOverrides - An object indicating which data types should ignore the whitelist.
  * @param {string[]} whitelist - The original whitelist with potential wildcards.
  */
-async function clearOtherData(dataTypes, whitelist) {
+async function clearOtherData(dataTypes, dataTypeOverrides, whitelist) {
     const excludedOrigins = getExcludedOrigins(whitelist);
-    const options = { "excludeOrigins": excludedOrigins };
+    const baseOptions = { "excludeOrigins": excludedOrigins };
 
-    console.log("Clearing other site data, excluding origins:", excludedOrigins);
+    console.log("Clearing other site data. Whitelist will be ignored for types marked with override. Excluded origins for others:", excludedOrigins.length > 0 ? excludedOrigins : "None");
 
     // Create a list of promises for all the data removal tasks.
     const removalPromises = [];
-    if (dataTypes.cache) removalPromises.push(chrome.browsingData.removeCache(options).then(() => console.log("Cache cleared.")));
-    if (dataTypes.localStorage) removalPromises.push(chrome.browsingData.removeLocalStorage(options).then(() => console.log("Local Storage cleared.")));
-    if (dataTypes.indexedDB) removalPromises.push(chrome.browsingData.removeIndexedDB(options).then(() => console.log("IndexedDB cleared.")));
-    if (dataTypes.fileSystems) removalPromises.push(chrome.browsingData.removeFileSystems(options).then(() => console.log("File Systems cleared.")));
-    if (dataTypes.webSQL) removalPromises.push(chrome.browsingData.removeWebSQL(options).then(() => console.log("WebSQL cleared.")));
-    if (dataTypes.history) removalPromises.push(chrome.browsingData.removeHistory({}).then(() => console.log("History cleared.")));
-    if (dataTypes.downloads) removalPromises.push(chrome.browsingData.removeDownloads({}).then(() => console.log("Downloads cleared.")));
-    if (dataTypes.formData) removalPromises.push(chrome.browsingData.removeFormData({}).then(() => console.log("Form Data cleared.")));
-    if (dataTypes.passwords) removalPromises.push(chrome.browsingData.removePasswords({}).then(() => console.log("Passwords cleared.")));
+    const logError = (type) => (err) => console.error(`Failed to clear ${type}:`, err.message || err);
+
+    // Helper to decide which options to use for a given data type.
+    // If override is true, use {} to clear all. Otherwise, use the options with exclusions.
+    const getOptionsFor = (type) => (dataTypeOverrides[type] ? {} : baseOptions);
+
+    if (dataTypes.cache) removalPromises.push(chrome.browsingData.removeCache(getOptionsFor('cache')).then(() => console.log("Cache cleared.")).catch(logError('Cache')));
+    if (dataTypes.localStorage) removalPromises.push(chrome.browsingData.removeLocalStorage(getOptionsFor('localStorage')).then(() => console.log("Local Storage cleared.")).catch(logError('Local Storage')));
+    if (dataTypes.indexedDB) removalPromises.push(chrome.browsingData.removeIndexedDB(getOptionsFor('indexedDB')).then(() => console.log("IndexedDB cleared.")).catch(logError('IndexedDB')));
+    if (dataTypes.fileSystems) removalPromises.push(chrome.browsingData.removeFileSystems(getOptionsFor('fileSystems')).then(() => console.log("File Systems cleared.")).catch(logError('File Systems')));
+    if (dataTypes.webSQL) removalPromises.push(chrome.browsingData.removeWebSQL(getOptionsFor('webSQL')).then(() => console.log("WebSQL cleared.")).catch(logError('WebSQL')));
+
+    // History and Downloads do not respect origin-based exclusion.
+    if (dataTypes.history) removalPromises.push(chrome.browsingData.removeHistory({}).then(() => console.log("History cleared.")).catch(logError('History')));
+    if (dataTypes.downloads) removalPromises.push(chrome.browsingData.removeDownloads({}).then(() => console.log("Downloads cleared.")).catch(logError('Downloads')));
+    if (dataTypes.formData) removalPromises.push(chrome.browsingData.removeFormData({}).then(() => console.log("Form Data cleared.")).catch(logError('Form Data')));
+    if (dataTypes.passwords) removalPromises.push(chrome.browsingData.removePasswords({}).then(() => console.log("Passwords cleared.")).catch(logError('Passwords')));
 
     await Promise.all(removalPromises);
     console.log("Non-cookie data clearing process completed.");
@@ -137,10 +146,11 @@ async function performCleaning() {
         whitelist: [],
         blacklist: [],
         dataTypes: { "cookies": true, "partitionedCookies": false },
+        dataTypeOverrides: {},
     });
 
-    const { whitelist, blacklist, dataTypes } = items;
-    console.log('newBroom Whitelist:', whitelist);
+    const { whitelist, blacklist, dataTypes, dataTypeOverrides } = items;
+    console.log('newBroom Whitelist:', whitelist, 'Overrides:', dataTypeOverrides);
     console.log('newBroom Blacklist:', blacklist);
     console.log('newBroom Data to remove:', dataTypes);
 
@@ -151,7 +161,7 @@ async function performCleaning() {
     }
 
     // Handle other data types with the standard API
-    clearingPromises.push(clearOtherData(dataTypes, whitelist));
+    clearingPromises.push(clearOtherData(dataTypes, dataTypeOverrides, whitelist));
 
     await Promise.all(clearingPromises);
     console.log("All clearing tasks have been completed.");
@@ -190,11 +200,15 @@ chrome.windows.onRemoved.addListener(async () => {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "cleanNow") {
         console.log("'Clean Now' requested from popup.");
-        // Trigger the cleaning process but don't wait for it to finish to send a response.
-        performCleaning(); 
+        // Trigger the cleaning process. We add a .catch() to handle potential errors
+        // since this is a "fire-and-forget" async call.
+        performCleaning().catch(err => console.error("Error during 'Clean Now' process:", err));
+
         sendResponse({ message: "Cleaning initiated!" });
     }
-    return false; // We are not sending a response asynchronously.
+    // Return false because we are sending the response synchronously (or not at all for other messages).
+    // This tells Chrome it can close the message channel.
+    return false;
 });
 
 console.log("newBroom extension loaded with wildcard support.");

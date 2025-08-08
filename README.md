@@ -98,9 +98,11 @@ You can choose to clear the following types of data:
 This extension requests the following permissions to function correctly:
 
 *   **`browsingData`**: The core permission required to clear browsing data like cache, local storage, and history using Chrome's `browsingData` API.
+*   **`cookies`**: Provides access to the `chrome.cookies` API, which is essential for the advanced, rule-based cookie cleaning. This allows the extension to inspect individual cookies and apply your wildcard and blacklist/whitelist rules with precision.
+*   **`downloads`**: Required to clear your download history if you select the "Download History" option.
+*   **`history`**: Required to clear your browsing history if you select the "Browsing History" option.
 *   **`storage`**: Used to save your whitelist, blacklist, and data type preferences using `chrome.storage.sync`, so your settings are saved across your devices.
 *   **`tabs`**: Allows the popup to identify the domain of the currently active tab, so you can easily add it to your whitelist or blacklist.
-*   **`cookies`**: Provides access to the `chrome.cookies` API, which is essential for the advanced, rule-based cookie cleaning. This allows the extension to inspect individual cookies and apply your wildcard and blacklist/whitelist rules with precision.
 *   **`<all_urls>` (Access to data on all websites)**: This is required for the `chrome.cookies` API to read and remove cookies from any website, as dictated by your settings. The extension needs to be able to scan all cookies to determine which ones to keep or delete based on your rules.
 
 ## Privacy Guarantee

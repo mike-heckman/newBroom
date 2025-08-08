@@ -5,9 +5,12 @@
   "description": "newBroom: Automatically removes site data when the browser closes, with a configurable whitelist.",
   "permissions": [
     "browsingData",
+    "cookies",
+    "downloads",
+    "history",
     "storage",
-    "tabs",
-    "cookies"
+    "tabs"
+
   ],
   "host_permissions": [
     "<all_urls>"
