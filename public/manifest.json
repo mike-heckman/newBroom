@@ -1,8 +1,8 @@
 {
   "name": "newBroom",
-  "version": "0.80.1",
+  "version": "0.81.0",
   "manifest_version": 3,
-  "description": "newBroom: Automatically removes site data when the browser closes, with a configurable whitelist.",
+  "description": "A powerful, configurable Chrome extension for automatically clearing browsing data with precision and control. Sweep away unwanted cookies and site data based on your own rules.",
   "permissions": [
     "browsingData",
     "cookies",
@@ -10,7 +10,6 @@
     "history",
     "storage",
     "tabs"
-
   ],
   "host_permissions": [
     "<all_urls>"
