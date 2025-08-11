@@ -1,7 +1,7 @@
 {
   "name": "newbroom",
   "private": true,
-  "version": "0.81.0",
+  "version": "0.83.0",
   "type": "module",
   "description": "",
   "main": "index.js",

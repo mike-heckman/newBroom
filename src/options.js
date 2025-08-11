@@ -13,6 +13,7 @@ const ALL_DATA_TYPES = [
     { id: 'downloads', name: 'Download History' },
     { id: 'formData', name: 'Form Data' },
     { id: 'passwords', name: 'Passwords' },
+    { id: 'siteSettings', name: 'Site Settings' },
 ];
 
 // Generate a default dataTypes object from the master list.
@@ -116,6 +117,14 @@ function buildUI() {
             const note = document.createElement('p');
             note.className = 'text-xs text-gray-500 ml-8 mt-2';
             note.innerHTML = 'Note: Due to Chrome API limitations, whitelisting a site protects its partitioned cookies, but complex cross-site rules do not apply. <a href="https://privacysandbox.google.com/cookies/chips" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Learn more about CHIPS</a>.';
+            itemContainer.appendChild(note);
+        }
+
+        // Add a description for Site Settings.
+        if (type.id === 'siteSettings') {
+            const note = document.createElement('p');
+            note.className = 'text-xs text-gray-500 ml-8 mt-2';
+            note.textContent = 'Resets permissions you have granted to websites (e.g., for camera, microphone, location) and other site-specific configurations.';
             itemContainer.appendChild(note);
         }
 

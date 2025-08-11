@@ -133,6 +133,7 @@ async function clearOtherData(dataTypes, dataTypeOverrides, whitelist) {
     if (dataTypes.downloads) removalPromises.push(chrome.browsingData.removeDownloads({}).then(() => console.log("Downloads cleared.")).catch(logError('Downloads')));
     if (dataTypes.formData) removalPromises.push(chrome.browsingData.removeFormData({}).then(() => console.log("Form Data cleared.")).catch(logError('Form Data')));
     if (dataTypes.passwords) removalPromises.push(chrome.browsingData.removePasswords({}).then(() => console.log("Passwords cleared.")).catch(logError('Passwords')));
+    if (dataTypes.siteSettings) removalPromises.push(chrome.browsingData.removeSiteSettings({}).then(() => console.log("Site Settings cleared.")).catch(logError('Site Settings')));
 
     await Promise.all(removalPromises);
     console.log("Non-cookie data clearing process completed.");
@@ -181,7 +182,7 @@ async function clearAllDataIfEnabled() {
         return;
     }
     
-    console.log("Last browser window closed. Clearing site data with newBroom...");
+    console.log("Browser startup detected. Clearing site data with newBroom...");
     await performCleaning();
 }
 
@@ -189,10 +190,10 @@ async function clearAllDataIfEnabled() {
  * Listens for a window to be closed. If it's the last window,
  * it triggers the data clearing process.
  */
-chrome.windows.onRemoved.addListener(async () => {
-    const allWindows = await chrome.windows.getAll({});
-    if (allWindows.length === 0) await clearAllDataIfEnabled();
-});
+chrome.runtime.onStartup.addListener(() => {
+    // This is the reliable way to clear data from the previous session.
+    clearAllDataIfEnabled();
+})
 
 /**
  * Listens for messages from other parts of the extension, like the popup.

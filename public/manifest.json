@@ -1,8 +1,8 @@
 {
   "name": "newBroom",
-  "version": "0.81.0",
+  "version": "0.83.0",
   "manifest_version": 3,
-  "description": "A powerful, configurable Chrome extension for automatically clearing browsing data with precision and control. Sweep away unwanted cookies and site data based on your own rules.",
+  "description": "A powerful, configurable Chrome extension for automatically clearing browsing data with precision and control.",
   "permissions": [
     "browsingData",
     "cookies",

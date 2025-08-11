@@ -3,8 +3,7 @@
 A powerful, configurable Chrome extension for automatically clearing browsing data with precision and control. Sweep away unwanted cookies and site data based on your own rules.
 
 ## Key Features
-
--   **Automatic Cleanup**: Runs automatically to clear data when the last browser window is closed.
+-   **Automatic Cleanup**: Runs automatically to clear data from your previous session each time you start the browser.
 -   **Manual Cleanup**: Includes a "Clean Now" button in the popup for on-demand cleaning.
 -   **Selective Data Removal**: Choose exactly which types of data to clear, including:
     -   Cookies (Standard & Partitioned)
@@ -12,6 +11,7 @@ A powerful, configurable Chrome extension for automatically clearing browsing da
     -   IndexedDB, WebSQL, & File Systems
     -   Browsing & Download History
     -   Form Data & Passwords
+    -   Site Settings
 -   **Powerful Domain Filtering**:
     -   **Whitelist**: Protect data from your favorite and essential sites.
     -   **Blacklist**: Force-delete data from specific domains, which overrides any whitelist rules.
@@ -24,7 +24,7 @@ A powerful, configurable Chrome extension for automatically clearing browsing da
 
 ## How It Works
 
-The core of newBroom is its rule-based engine that runs when you close your last browser window or click "Clean Now".
+The core of newBroom is its rule-based engine that runs when you start your browser or click "Clean Now".
 
 1.  **Blacklist First**: The extension first checks if a cookie or data item belongs to a domain on your blacklist. If it does, it's marked for deletion, no matter what.
 2.  **Whitelist Check**: If the item is not on the blacklist, the extension checks if it belongs to a domain on your whitelist. If it's **not** on the whitelist, it's marked for deletion.
@@ -92,6 +92,7 @@ You can choose to clear the following types of data:
 *   **Download History**: The list of files you have downloaded.
 *   **Form Data**: Information you've typed into forms, which is often used for autofill.
 *   **Passwords**: Your saved usernames and passwords for various websites.
+*   **Site Settings**: Resets custom permissions you've granted to websites, such as access to your camera, microphone, or location, as well as other site-specific configurations like zoom levels.
 
 ## Permissions Explained
 
