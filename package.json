@@ -1,19 +1,21 @@
 {
   "name": "newbroom",
   "private": true,
-  "version": "0.83.0",
+  "version": "0.85.0",
   "type": "module",
   "description": "",
   "main": "index.js",
   "scripts": {
     "dev": "vite build --watch",
-    "build": "vite build"
+    "build": "vite build && mkdir -p private && cd dist && bestzip ../private/newBroom-v$npm_package_version.zip * && cd .."
   },
   "keywords": [],
   "author": "",
   "license": "GPL-3.0-or-later",
   "devDependencies": {
     "autoprefixer": "^10.4.21",
+    "bestzip": "^2.2.1",
+    "mkdirp": "^3.0.1",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
     "vite": "^7.0.6"
