@@ -37,33 +37,9 @@ This allows you to put *.example.com on the whitelist but still remove cookies i
 >
 > Due to the design of Chrome's `browsingData` API, the advanced filtering logic (wildcards, blacklist overriding whitelist) applies with the highest precision to **cookies**. For other data types like Local Storage and Cache, the whitelist protects the entire origin (e.g., `https://example.com`), but the more complex rules cannot be applied.
 
-## Installation & Development
+## Installation
 
-To run this extension locally:
-Find the repo here: https://github.com/mike-heckman/newBroom
-1.  **Clone the repository:**
-    ```sh
-    git clone https://github.com/mike-heckman/newBroom.git
-    cd newBroom
-    ```
-
-2.  **Install dependencies:**
-    This project uses `vite` and `tailwindcss` for the options page UI.
-    ```sh
-    npm install
-    ```
-
-3.  **Build the extension:**
-    This command will compile the necessary files into a `dist` directory.
-    ```sh
-    npm run build
-    ```
-
-4.  **Load the extension in Chrome:**
-    -   Open Google Chrome and navigate to `chrome://extensions`.
-    -   Enable "Developer mode" using the toggle in the top-right corner.
-    -   Click the "Load unpacked" button.
-    -   Select the `dist` directory that was created in the previous step.
+You can install newBroom from the Chrome Web Store here: https://chromewebstore.google.com/detail/phhjhfaehohomdmdldnohnhjgchfnlcg
 
 ## Configuration
 
@@ -111,6 +87,34 @@ This extension requests the following permissions to function correctly:
 newBroom is designed with your privacy as the top priority. **This extension does not collect, store, or transmit any of your personal data or browsing activity to any external servers.**
 
 All data processing happens locally within your browser. Your settings (whitelist, blacklist, and preferences) are saved using `chrome.storage.sync`, which only synchronizes them across your own devices where you are logged into your browser's account. Your information never leaves your control.
+
+## Development
+
+To run this extension locally:
+Find the repo here: https://github.com/mike-heckman/newBroom
+1.  **Clone the repository:**
+    ```sh
+    git clone https://github.com/mike-heckman/newBroom.git
+    cd newBroom
+    ```
+
+2.  **Install dependencies:**
+    This project uses `vite` and `tailwindcss` for the options page UI.
+    ```sh
+    npm install
+    ```
+
+3.  **Build the extension:**
+    This command will compile the necessary files into a `dist` directory.
+    ```sh
+    npm run build
+    ```
+
+4.  **Load the extension in Chrome:**
+    -   Open Google Chrome and navigate to `chrome://extensions`.
+    -   Enable "Developer mode" using the toggle in the top-right corner.
+    -   Click the "Load unpacked" button.
+    -   Select the `dist` directory that was created in the previous step.
 
 ## License
 
